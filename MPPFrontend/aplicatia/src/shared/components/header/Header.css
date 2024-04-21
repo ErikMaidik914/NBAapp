@@ -1,0 +1,41 @@
+.header {
+    margin: 0px;
+
+    width: 100%;
+    text-align: center;
+    font-size: 16pt;
+    position: sticky;
+    top: 0;
+    left: 0;
+
+    color: black;
+    background-color: pink;
+    border-bottom: 1px solid #dcdcdc;
+}
+
+.navbar {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.links {
+    display: flex;
+}
+
+.links > div {
+    padding: 0 20px;
+    font-size: 12pt;
+}
+
+.title {
+    font-weight: bold;
+}
+
+.link {
+    text-decoration: none;
+    color: inherit;
+}
