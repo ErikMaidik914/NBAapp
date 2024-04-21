@@ -33,6 +33,7 @@ function App() {
         socket.on('newUser', (newUser: any) => {
             const myUser = new User(newUser.name, newUser.team, 'nacho.jpeg', newUser.age);
             setUsers((prevUsers) => [...prevUsers, myUser]);
+            fetchUsers();
             console.log('good');
         });
     });
