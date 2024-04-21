@@ -1,22 +1,36 @@
-import { User } from "../models/User.js";
-
-//import mongoose from 'mongoose'
+import { UserS } from "../models/UserSchema.js";
 
 export const getUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const allUsers = await UserS.find().sort({ id: 1 });
+  res.status(200).json(allUsers);
+};
+
+const getFirstFreeId = async () => {
+  let myId = -1;
+  const uzers = await UserS.find().sort({ id: 1 });
+  for (let i = 0; i < uzers.length; i++) {
+    if (uzers[i].id != i + 1) {
+      myId = i + 1;
+      break;
+    }
   }
+  if (myId == -1) {
+    myId = uzers.length + 1;
+  }
+  return myId;
 };
 
 export const getUserById = async (req, res) => {
   const id = parseInt(req.params.id);
+
   try {
-    const user = await User.findOne({ id: id });
-    if (user) res.status(200).json(user);
-    else res.status(404).json("User not found");
+    const user = await UserS.findOne({ id: id });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -24,41 +38,42 @@ export const getUserById = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    console.log(req.body);
-    const { name, team, url, age } = req.body;
+    const { name, team, pictureUrl, age } = req.body;
+    const id = await getFirstFreeId();
+    const savedUser = await UserS.create({ id, name, team, pictureUrl, age });
 
-    const user = new User({ name, team, url, age });
-    await user.save();
-    return res.status(200).json(user);
+    return res.status(200).json(savedUser);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message } + "andron");
   }
 };
 
 export const deleteUser = async (req, res) => {
   const id = parseInt(req.params.id);
-  try {
-    const user = await User.findOneAndDelete({ id: id });
-    if (user) res.status(200).json("User deleted");
-    else res.status(404).json("User not found");
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+
+  UserS.deleteOne({ id: id }, (err) => {
+    if (err) {
+      res.status(500).json({ message: "Error deleting user" });
+    } else {
+      res.status(200).json({ message: "User deleted" });
+    }
+  });
 };
 
 export const updateUser = async (req, res) => {
   const id = parseInt(req.params.id);
+
+  const user = UserS.findOne((user) => user.getId() == id);
+
   try {
-    const { name, team, url, age } = req.body;
-    const user = await User.findOneAndUpdate(
-      { id: id },
-      { name, team, url, age },
-      { new: true }
-    );
-    if (user) res.status(200).json(user);
-    else res.status(404).json("User not found");
+    const { name, team, pictureUrl, age } = req.body;
+    user.setName(name);
+    user.setTeam(team);
+    user.setPictureUrl(pictureUrl);
+    user.setAge(age);
+    return res.status(200).json(user);
   } catch (error) {
-    res.status(400).json("User not found");
+    res.status(400).json("user not found");
   }
 };
 

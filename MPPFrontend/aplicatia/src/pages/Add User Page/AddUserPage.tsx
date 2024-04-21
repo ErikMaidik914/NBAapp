@@ -15,16 +15,16 @@ function handleOnClick(
     teamameInput: React.RefObject<HTMLInputElement>,
     urlInput: React.RefObject<HTMLInputElement>,
     ageInput: React.RefObject<HTMLInputElement>,
-): User {
+): { name: string; team: string; pictureUrl: string; age: number } {
     if (!nameInput.current!.value || !teamameInput.current!.value || !urlInput.current!.value || !ageInput.current!.value)
         throw new Error('You must provide values for each field!');
 
-    const username: string = nameInput.current!.value,
-        userTeam: string = teamameInput.current!.value,
-        userUrl: string = urlInput.current!.value,
+    const name: string = nameInput.current!.value,
+        team: string = teamameInput.current!.value,
+        pictureUrl: string = urlInput.current!.value,
         age: number = parseInt(ageInput.current!.value);
 
-    return new User(username, userTeam, userUrl, age);
+    return { name, team, pictureUrl, age };
 }
 
 export default function AddUserPage() {
@@ -41,16 +41,13 @@ export default function AddUserPage() {
     const handleOnClickWrapper = () => {
         try {
             const inputUser = handleOnClick(nameInput, teamInput, urlInput, ageInput);
-
+            //console.log('nigga');
             axios
-                .post('http://localhost:4000/api/users/addUser', [
-                    inputUser.getName(),
-                    inputUser.getTeam(),
-                    inputUser.getPictureUrl(),
-                    inputUser.getAge(),
-                ])
+                .post('http://localhost:4000/api/users/addUser', inputUser)
                 .then(() => {
-                    usersContext.addUser(new User(inputUser.getName(), inputUser.getTeam(), inputUser.getPictureUrl(), inputUser.getAge()));
+                    console.log('User add started!');
+                    usersContext.addUser(new User(inputUser.name, inputUser.team, inputUser.pictureUrl, inputUser.age));
+                    console.log('User add worked!');
                     navigate('/');
                 })
                 .catch((error) => {
