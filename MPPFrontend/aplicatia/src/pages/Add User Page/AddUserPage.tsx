@@ -6,8 +6,10 @@ import { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
+import * as rax from 'retry-axios';
 import { UsersContext } from '../../contexts/UserContext';
 import { UserForm } from '../../features/CRUD Operations/Form User/FormUser';
+import { useUserStore } from '../../store/useUserStore';
 import './AddUserPage.css';
 
 function handleOnClick(
@@ -35,24 +37,51 @@ export default function AddUserPage() {
     const urlInput = useRef<HTMLInputElement>(null);
     const ageInput = useRef<HTMLInputElement>(null);
 
+    const interceptorId = rax.attach();
+
+    const addUserStore = useUserStore((state) => state.addUser);
+
     const navigate = useNavigate();
     const usersContext = useContext(UsersContext)!;
     //axios
     const handleOnClickWrapper = () => {
         try {
             const inputUser = handleOnClick(nameInput, teamInput, urlInput, ageInput);
-            //console.log('nigga');
-            axios
-                .post('http://localhost:4000/api/users/addUser', inputUser)
+
+            addUserStore(new User(inputUser.name, inputUser.team, inputUser.pictureUrl, inputUser.age));
+            usersContext.addUser(new User(inputUser.name, inputUser.team, inputUser.pictureUrl, inputUser.age));
+
+            axios({
+                method: 'post',
+                url: 'http://localhost:4000/api/users/addUser',
+                data: inputUser,
+                raxConfig: {
+                    instance: axios,
+                    retry: 100,
+                    noResponseRetries: 100,
+                    retryDelay: 1000,
+                    httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'POST'],
+                    statusCodesToRetry: [
+                        [100, 199],
+                        [429, 429],
+                        [500, 599],
+                    ],
+                },
+            })
+                //.post('http://localhost:4000/api/users/addUser', inputUser)
                 .then(() => {
                     console.log('User add started!');
-                    usersContext.addUser(new User(inputUser.name, inputUser.team, inputUser.pictureUrl, inputUser.age));
                     console.log('User add worked!');
-                    navigate('/');
                 })
                 .catch((error) => {
                     console.error('Error adding user:', error);
                 });
+            navigate('/');
+            // .finally(() => {
+            //     console.log('User add finished!');
+            //     addUserStore(new User(inputUser.name, inputUser.team, inputUser.pictureUrl, inputUser.age));
+            //     navigate('/');
+            // });
         } catch (error) {
             console.error('Error handling input:', error);
         }

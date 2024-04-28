@@ -16,8 +16,20 @@ const Header = () => {
                     </div>
 
                     <div>
+                        <Link to='/displayFans' className='link'>
+                            List Fans
+                        </Link>
+                    </div>
+
+                    <div>
                         <Link to='/addUser' className='link'>
                             Add 🏀 Player
+                        </Link>
+                    </div>
+
+                    <div>
+                        <Link to='/addFan' className='link'>
+                            Add Fan
                         </Link>
                     </div>
 

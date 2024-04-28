@@ -5,12 +5,15 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import axios from 'axios';
-import { io } from 'socket.io-client';
+import * as rax from 'retry-axios';
 import ConnectionStatus from './ConnectionStatus';
+import { FansContextProvider } from './contexts/FanContext';
 import { ModalContextProvider } from './contexts/ModalContext';
 import { UsersContextProvider } from './contexts/UserContext';
+import { Fan } from './models/fan';
 import ChartPage from './pages/Chart Page/ChartPage';
 import LoadingPage from './pages/Loading Page/LoadingPage';
+import { useUserStore } from './store/useUserStore';
 
 // let demoUser1: User = new User('Michael Jordan', 'Bulls', 'nacho.jpeg', 1);
 // let demoUser2: User = new User('Stephen Curry', 'Warriors', 'nacho.jpeg', 30);
@@ -24,22 +27,33 @@ const DisplayUsersPage = React.lazy(() => import('./pages/Display Data Page/Disp
 const AddUserPage = React.lazy(() => import('./pages/Add User Page/AddUserPage'));
 const EditUserPage = React.lazy(() => import('./pages/Edit User Page/EditUserPage'));
 
+const DisplayFansPage = React.lazy(() => import('./pages/Display Data Page/DisplayFansPage'));
+const AddFanPage = React.lazy(() => import('./pages/Add Fan Page/AddFanPage'));
+const EditFanPage = React.lazy(() => import('./pages/Edit Fan Page/EditFanPage'));
+
 function App() {
     // let [users, setUsers] = useState<User[]>([demoUser1, demoUser2, demoUser3, demoUser4, demoUser5, demoUser6, demoUser7]);
     const [users, setUsers] = useState<User[]>([]);
+    const [fans, setFans] = useState<Fan[]>([]);
 
-    useEffect(() => {
-        const socket = io('http://localhost:4000', { transports: ['websocket'] });
-        socket.on('newUser', (newUser: any) => {
-            const myUser = new User(newUser.name, newUser.team, 'nacho.jpeg', newUser.age);
-            setUsers((prevUsers) => [...prevUsers, myUser]);
-            fetchUsers();
-            console.log('good');
-        });
-    });
+    const setUserStore = useUserStore((state) => state.setUsers);
+    const getUsersStore = useUserStore((state) => state.getUsers);
+    const interceptorId = rax.attach();
+
+    // useEffect(() => {
+    //     const socket = io('http://localhost:4000', { transports: ['websocket'] });
+    //     socket.on('newUser', (newUser: any) => {
+    //         console.log(newUser);
+    //         const myUser = new User(newUser.name, newUser.team, 'nacho.jpeg', newUser.age);
+    //         setUsers((prevUsers) => [...prevUsers, myUser]);
+    //         //fetchUsers();
+    //         console.log('good');
+    //     });
+    // });
 
     let [modalStatus, setModalStatus] = useState<boolean>(false);
     let [userId, setUserId] = useState<number>(-1);
+    let [fanId, setFanId] = useState<number>(-1);
 
     const addUser = (newUser: User) => {
         setUsers((prevState: User[]) => [...prevState, newUser]);
@@ -49,19 +63,59 @@ function App() {
         setUsers((prevState: User[]) => prevState.filter((user) => user.getId() !== userId));
     };
 
+    //fans
+    const addFan = (newFan: Fan) => {
+        setFans((prevState: Fan[]) => [...prevState, newFan]);
+    };
+
+    const removeFan = (fanId: number) => {
+        setFans((prevState: Fan[]) => prevState.filter((fan) => fan.getId() !== fanId));
+    };
+
     //const [users, setUsers] = useState<User[]>([]);
 
     const fetchUsers = () => {
-        axios
-            .get('http://localhost:4000/api/users')
+        const data = getUsersStore();
+
+        const users = data.map((user: any) => new User(user.name, user.team, 'nacho.jpeg', user.age));
+
+        setUsers(users);
+        axios({
+            url: 'http://localhost:4000/api/users',
+            method: 'GET',
+            raxConfig: {
+                retry: 100,
+                noResponseRetries: 100,
+                retryDelay: 1000,
+                httpMethodsToRetry: ['GET'],
+                statusCodesToRetry: [
+                    [100, 199],
+                    [429, 429],
+                    [500, 599],
+                ],
+                onRetryAttempt: (err) => {
+                    const cfg = rax.getConfig(err);
+                    console.log(`Retry attempt #${cfg?.currentRetryAttempt}`);
+                },
+            },
+        })
+            //.get('http://localhost:4000/api/users')
             .then((response) => {
                 const users = response.data.map((user: any) => new User(user.name, user.team, 'nacho.jpeg', user.age));
+
                 setUsers(users);
+                setUserStore(users);
                 //setCurrentUsers(users);
-            })
-            .catch((error) => {
-                console.error('Error fetching users:', error);
             });
+        // .catch((error) => {
+        //     console.error('Error fetching users:', error);
+        //     console.log(getUsersStore());
+        //     const data = getUsersStore();
+
+        //     const users = data.map((user: any) => new User(user.name, user.team, 'nacho.jpeg', user.age));
+
+        //     setUsers(users);
+        // });
     };
 
     useEffect(() => {
@@ -74,45 +128,76 @@ function App() {
 
     return (
         <UsersContextProvider userContext={{ users, addUser, removeUser }}>
-            <ModalContextProvider modalContext={{ modalStatus, setModalStatus, userId, setUserId, removeUser }}>
-                <ConnectionStatus></ConnectionStatus>
-                <BrowserRouter>
-                    <Routes>
-                        <Route path='/loading' element={<LoadingPage />} />
+            <FansContextProvider fanContext={{ fans, addFan, removeFan }}>
+                <ModalContextProvider
+                    modalContext={{ modalStatus, setModalStatus, userId, setUserId, removeUser, fanId, setFanId, removeFan }}
+                >
+                    <ConnectionStatus></ConnectionStatus>
+                    <BrowserRouter>
+                        <Routes>
+                            <Route path='/loading' element={<LoadingPage />} />
 
-                        <Route
-                            path='/'
-                            element={
-                                <Suspense fallback={<LoadingPage />}>
-                                    <DisplayUsersPage />
-                                </Suspense>
-                            }
-                        />
+                            <Route
+                                path='/'
+                                element={
+                                    <Suspense fallback={<LoadingPage />}>
+                                        <DisplayUsersPage />
+                                    </Suspense>
+                                }
+                            />
 
-                        <Route
-                            path='/addUser'
-                            element={
-                                <Suspense fallback={<LoadingPage />}>
-                                    <AddUserPage />
-                                </Suspense>
-                            }
-                        />
+                            <Route
+                                path='/addUser'
+                                element={
+                                    <Suspense fallback={<LoadingPage />}>
+                                        <AddUserPage />
+                                    </Suspense>
+                                }
+                            />
 
-                        <Route
-                            path='/editUser/:userId'
-                            element={
-                                <Suspense fallback={<LoadingPage />}>
-                                    <EditUserPage />
-                                </Suspense>
-                            }
-                        />
+                            <Route
+                                path='/editUser/:userId'
+                                element={
+                                    <Suspense fallback={<LoadingPage />}>
+                                        <EditUserPage />
+                                    </Suspense>
+                                }
+                            />
 
-                        <Route path='/chart' element={<ChartPage />} />
+                            <Route
+                                path='/addFan'
+                                element={
+                                    <Suspense fallback={<LoadingPage />}>
+                                        <AddFanPage />
+                                    </Suspense>
+                                }
+                            />
 
-                        <Route path='*' element={<Navigate to={'/'} />} />
-                    </Routes>
-                </BrowserRouter>
-            </ModalContextProvider>
+                            <Route
+                                path='/editFan/:fanId'
+                                element={
+                                    <Suspense fallback={<LoadingPage />}>
+                                        <EditFanPage />
+                                    </Suspense>
+                                }
+                            />
+
+                            <Route
+                                path='/displayFans'
+                                element={
+                                    <Suspense fallback={<LoadingPage />}>
+                                        <DisplayFansPage />
+                                    </Suspense>
+                                }
+                            />
+
+                            <Route path='/chart' element={<ChartPage />} />
+
+                            <Route path='*' element={<Navigate to={'/'} />} />
+                        </Routes>
+                    </BrowserRouter>
+                </ModalContextProvider>
+            </FansContextProvider>
         </UsersContextProvider>
     );
 }

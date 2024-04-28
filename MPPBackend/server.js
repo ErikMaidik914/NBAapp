@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
   setInterval(() => {
     const user = createUser();
     socket.emit("newUser", user);
-  }, 30000);
+  }, 20000);
 });
 
 const PORT = process.env.PORT || 4000;

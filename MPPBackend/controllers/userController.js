@@ -49,32 +49,33 @@ export const createUser = async (req, res) => {
 };
 
 export const deleteUser = async (req, res) => {
-  const id = parseInt(req.params.id);
+  const { id } = req.params;
+  // const data = getUserById(id);
+  // if (data.status == 404) {
+  //   return res.status(404).json({ error: "User not found" });
+  // }
 
-  UserS.deleteOne({ id: id }, (err) => {
-    if (err) {
-      res.status(500).json({ message: "Error deleting user" });
-    } else {
-      res.status(200).json({ message: "User deleted" });
-    }
-  });
+  const user = await UserS.findOneAndDelete({ id: id });
+
+  if (!user) {
+    return res.status(404).json({ error: "user not found" });
+  }
+
+  res.status(200).json(user);
 };
 
 export const updateUser = async (req, res) => {
-  const id = parseInt(req.params.id);
+  const { id } = req.params;
 
-  const user = UserS.findOne((user) => user.getId() == id);
+  console.log(req.body);
 
-  try {
-    const { name, team, pictureUrl, age } = req.body;
-    user.setName(name);
-    user.setTeam(team);
-    user.setPictureUrl(pictureUrl);
-    user.setAge(age);
-    return res.status(200).json(user);
-  } catch (error) {
-    res.status(400).json("user not found");
+  const user = await UserS.findOneAndUpdate({ id: id }, { ...req.body });
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
   }
+
+  res.status(200).json(user);
 };
 
 export default {

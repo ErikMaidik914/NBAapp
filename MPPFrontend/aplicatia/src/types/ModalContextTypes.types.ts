@@ -6,6 +6,10 @@ export type ModalContextType = {
     userId: number;
     setUserId: (newId: number) => void;
     removeUser: (userId: number) => void;
+
+    fanId: number;
+    setFanId: (newId: number) => void;
+    removeFan: (fanId: number) => void;
 };
 
 export type ModalContextProviderType = {

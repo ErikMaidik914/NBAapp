@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
-import router from "./routes/users.js";
+import fanRouter from "./routes/fans.js";
+import userRouter from "./routes/users.js";
 //require("dotenv").config();
 //const express = require("express");
 
@@ -8,7 +9,6 @@ import router from "./routes/users.js";
 export const app = express();
 //const userRoutes = require("./routes/users");
 
-//middleware - logs requests
 app.use(cors());
 app.use(express.json());
 
@@ -18,7 +18,9 @@ app.use((req, res, next) => {
 });
 
 //routes
-app.use("/api/users", router);
+app.use("/api/users", userRouter);
+
+app.use("/api/fans", fanRouter);
 
 //module.exports = app;
 export default app;

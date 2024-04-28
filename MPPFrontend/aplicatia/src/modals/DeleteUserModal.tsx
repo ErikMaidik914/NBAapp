@@ -1,8 +1,11 @@
 import { useContext } from 'react';
 import { Button } from '../shared/components/button/Button';
 
+import axios from 'axios';
+import * as rax from 'retry-axios';
 import { ModalContext } from '../contexts/ModalContext';
 
+import { useUserStore } from '../store/useUserStore';
 import './DeleteUserModal.css';
 
 export const DeleteUserModal = () => {
@@ -11,10 +14,36 @@ export const DeleteUserModal = () => {
     let setModalStatus = modalContext.setModalStatus;
     const removeUser = modalContext.removeUser;
     const userId = modalContext.userId;
+    const interceptorId = rax.attach();
+
+    const deleteUserStore = useUserStore((state) => state.removeUser);
 
     const handleYesClick = () => {
         setModalStatus(false);
         removeUser(userId);
+        deleteUserStore(userId);
+        axios({
+            method: 'delete',
+            url: `http://localhost:4000/api/users/${userId}`,
+            raxConfig: {
+                instance: axios,
+                retry: 100,
+                noResponseRetries: 100,
+                retryDelay: 1000,
+                httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'POST'],
+                statusCodesToRetry: [
+                    [100, 199],
+                    [429, 429],
+                    [500, 599],
+                ],
+            },
+        })
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     return (
