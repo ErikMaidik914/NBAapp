@@ -6,7 +6,7 @@ import { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
-import * as rax from 'retry-axios';
+//import * as rax from 'retry-axios';
 import { UsersContext } from '../../contexts/UserContext';
 import { UserForm } from '../../features/CRUD Operations/Form User/FormUser';
 import { useUserStore } from '../../store/useUserStore';
@@ -37,7 +37,7 @@ export default function AddUserPage() {
     const urlInput = useRef<HTMLInputElement>(null);
     const ageInput = useRef<HTMLInputElement>(null);
 
-    const interceptorId = rax.attach();
+    //const interceptorId = rax.attach();
 
     const addUserStore = useUserStore((state) => state.addUser);
 
@@ -57,8 +57,8 @@ export default function AddUserPage() {
                 data: inputUser,
                 raxConfig: {
                     instance: axios,
-                    retry: 100,
-                    noResponseRetries: 100,
+                    retry: 3,
+                    noResponseRetries: 3,
                     retryDelay: 1000,
                     httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'POST'],
                     statusCodesToRetry: [
