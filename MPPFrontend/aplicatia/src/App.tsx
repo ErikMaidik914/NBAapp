@@ -13,6 +13,7 @@ import { UsersContextProvider } from './contexts/UserContext';
 import { Fan } from './models/fan';
 import ChartPage from './pages/Chart Page/ChartPage';
 import LoadingPage from './pages/Loading Page/LoadingPage';
+import { useFanStore } from './store/useFanStore';
 import { useUserStore } from './store/useUserStore';
 
 // let demoUser1: User = new User('Michael Jordan', 'Bulls', 'nacho.jpeg', 1);
@@ -38,7 +39,9 @@ function App() {
 
     const setUserStore = useUserStore((state) => state.setUsers);
     const getUsersStore = useUserStore((state) => state.getUsers);
-    const interceptorId = rax.attach();
+    const setFanStore = useFanStore((state) => state.setFans);
+    const getFansStore = useFanStore((state) => state.getFans);
+    //const interceptorId = rax.attach();
 
     // useEffect(() => {
     //     const socket = io('http://localhost:4000', { transports: ['websocket'] });
@@ -118,13 +121,54 @@ function App() {
         // });
     };
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    const fetchFans = () => {
+        const data = getFansStore();
+
+        const fans = data.map((fan: any) => new Fan(fan.userId, fan.name, 'nacho.jpeg'));
+
+        setFans(fans);
+        axios({
+            url: 'http://localhost:4000/api/fans',
+            method: 'GET',
+            raxConfig: {
+                retry: 100,
+                noResponseRetries: 100,
+                retryDelay: 1000,
+                httpMethodsToRetry: ['GET'],
+                statusCodesToRetry: [
+                    [100, 199],
+                    [429, 429],
+                    [500, 599],
+                ],
+                onRetryAttempt: (err) => {
+                    const cfg = rax.getConfig(err);
+                    console.log(`Retry attempt #${cfg?.currentRetryAttempt}`);
+                },
+            },
+        })
+            //.get('http://localhost:4000/api/users')
+            .then((response) => {
+                const fans = response.data.map((fan: any) => new Fan(fan.userId, fan.name, 'nacho.jpeg'));
+
+                setFans(fans);
+                setFanStore(fans);
+                //setCurrentUsers(users);
+            });
+        // .catch((error) => {
+        //     console.error('Error fetching users:', error);
+        //     console.log(getUsersStore());
+        //     const data = getUsersStore();
+
+        //     const users = data.map((user: any) => new User(user.name, user.team, 'nacho.jpeg', user.age));
+
+        //     setUsers(users);
+        // });
+    };
 
     useEffect(() => {
-        console.log(users);
-    });
+        fetchUsers();
+        fetchFans();
+    }, []);
 
     return (
         <UsersContextProvider userContext={{ users, addUser, removeUser }}>

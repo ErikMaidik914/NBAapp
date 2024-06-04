@@ -1,3 +1,5 @@
+import { FanS } from "../models/FanSchema.js";
+
 export const getFans = async (req, res) => {
   const allFans = await FanS.find().sort({ id: 1 });
   res.status(200).json(allFans);
