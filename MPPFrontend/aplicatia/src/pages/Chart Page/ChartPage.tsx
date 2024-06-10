@@ -1,10 +1,20 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { BarChart } from '@mui/x-charts';
+import { useNavigate } from 'react-router-dom';
 import { UsersContext } from '../../contexts/UserContext';
 import { Layout } from '../../shared/components/layout/Layout';
 
 export default function ChartPage() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user-store');
+
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate]);
     const usersContext = useContext(UsersContext)!;
     const usersList = usersContext.users;
 

@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { Button } from '../shared/components/button/Button';
 
 import axios from 'axios';
-import * as rax from 'retry-axios';
 import { ModalContext } from '../contexts/ModalContext';
 
 import { useUserStore } from '../store/useUserStore';
@@ -14,7 +13,7 @@ export const DeleteUserModal = () => {
     let setModalStatus = modalContext.setModalStatus;
     const removeUser = modalContext.removeUser;
     const userId = modalContext.userId;
-    const interceptorId = rax.attach();
+    //const interceptorId = rax.attach();
 
     const deleteUserStore = useUserStore((state) => state.removeUser);
 
@@ -25,6 +24,7 @@ export const DeleteUserModal = () => {
         axios({
             method: 'delete',
             url: `http://localhost:4000/api/users/${userId}`,
+            //url: `http://13.49.23.168:80/api/users/${userId}`,
             raxConfig: {
                 instance: axios,
                 retry: 100,

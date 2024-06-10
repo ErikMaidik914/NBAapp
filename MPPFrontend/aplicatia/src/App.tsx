@@ -13,6 +13,8 @@ import { UsersContextProvider } from './contexts/UserContext';
 import { Fan } from './models/fan';
 import ChartPage from './pages/Chart Page/ChartPage';
 import LoadingPage from './pages/Loading Page/LoadingPage';
+import LoginPage from './pages/Login Page/LoginPage';
+import SignupPage from './pages/SignupPage/SignupPage';
 import { useFanStore } from './store/useFanStore';
 import { useUserStore } from './store/useUserStore';
 
@@ -33,6 +35,15 @@ const AddFanPage = React.lazy(() => import('./pages/Add Fan Page/AddFanPage'));
 const EditFanPage = React.lazy(() => import('./pages/Edit Fan Page/EditFanPage'));
 
 function App() {
+    //const navigate = useNavigate();
+
+    // useEffect(() => {
+    //     const user = localStorage.getItem('user');
+
+    //     if (!user) {
+    //         navigate('/login');
+    //     }
+    // }, [navigate]);
     // let [users, setUsers] = useState<User[]>([demoUser1, demoUser2, demoUser3, demoUser4, demoUser5, demoUser6, demoUser7]);
     const [users, setUsers] = useState<User[]>([]);
     const [fans, setFans] = useState<Fan[]>([]);
@@ -85,6 +96,7 @@ function App() {
         setUsers(users);
         axios({
             url: 'http://localhost:4000/api/users',
+            //url: 'http://13.49.23.168:80/api/users',
             method: 'GET',
             raxConfig: {
                 retry: 100,
@@ -129,6 +141,7 @@ function App() {
         setFans(fans);
         axios({
             url: 'http://localhost:4000/api/fans',
+            //url: 'http://13.49.23.168:80/api/fans',
             method: 'GET',
             raxConfig: {
                 retry: 100,
@@ -189,6 +202,8 @@ function App() {
                                     </Suspense>
                                 }
                             />
+                            <Route path='/login' element={<LoginPage />} />
+                            <Route path='/signup' element={<SignupPage />} />
 
                             <Route
                                 path='/addUser'

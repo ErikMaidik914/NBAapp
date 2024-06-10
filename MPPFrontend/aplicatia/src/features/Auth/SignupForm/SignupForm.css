@@ -1,0 +1,23 @@
+.signup-form-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    width: 40%;
+    height: 60%;
+
+    padding: 1em;
+    border-radius: 1px;
+}
+
+@media (max-width: 768px) {
+    .signup-form-div {
+        width: 60%;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .signup-form-div {
+        width: 50%;
+    }
+}

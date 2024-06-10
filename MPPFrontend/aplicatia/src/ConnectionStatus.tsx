@@ -30,7 +30,7 @@ function ConnectionStatus() {
 
         checkServerStatus();
 
-        const interval = setInterval(checkServerStatus, 5000);
+        const interval = setInterval(checkServerStatus, 500000);
 
         return () => clearInterval(interval);
     }, []);
@@ -40,7 +40,7 @@ function ConnectionStatus() {
     }
 
     if (isServerDown) {
-        return <div className='alert alert-warning alert-dismissible fade show'>Server is down!</div>;
+        return <div className='alert alert-warning alert-dismissible fade show'>sssssss</div>;
     }
 
     return null;
