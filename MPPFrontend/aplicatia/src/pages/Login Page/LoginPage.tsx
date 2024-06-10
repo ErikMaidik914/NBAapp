@@ -31,7 +31,7 @@ function handleOnClick(
 }
 
 const LoginPage = () => {
-    document.title = 'Astral Odyssey | Login';
+    document.title = 'NBA | Login';
 
     const navigate = useNavigate();
 
@@ -46,6 +46,7 @@ const LoginPage = () => {
             try {
                 //const URL = 'http://localhost:5000/api/user/login';
                 //const URL = `http://3.79.63.224:5000/api/user/login`;
+
                 const URL = 'http://localhost:4000/api/accounts/login';
                 //const URL = 'http://13.49.23.168:80/api/accounts/login';
 

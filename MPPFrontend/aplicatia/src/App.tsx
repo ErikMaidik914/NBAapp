@@ -95,8 +95,8 @@ function App() {
 
         setUsers(users);
         axios({
-            url: 'http://localhost:4000/api/users',
-            //url: 'http://13.49.23.168:80/api/users',
+            //url: 'http://localhost:4000/api/users',
+            url: 'http://13.49.23.168:80/api/users',
             method: 'GET',
             raxConfig: {
                 retry: 100,
@@ -140,8 +140,8 @@ function App() {
 
         setFans(fans);
         axios({
-            url: 'http://localhost:4000/api/fans',
-            //url: 'http://13.49.23.168:80/api/fans',
+            //url: 'http://localhost:4000/api/fans',
+            url: 'http://13.49.23.168:80/api/fans',
             method: 'GET',
             raxConfig: {
                 retry: 100,
