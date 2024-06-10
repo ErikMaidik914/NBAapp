@@ -40,7 +40,7 @@ function ConnectionStatus() {
     }
 
     if (isServerDown) {
-        return <div className='alert alert-warning alert-dismissible fade show'>sssssss</div>;
+        return <div className='alert alert-warning alert-dismissible fade show'></div>;
     }
 
     return null;
