@@ -6,7 +6,6 @@ import { useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import axios from 'axios';
-import * as rax from 'retry-axios';
 
 import { UsersContext } from '../../contexts/UserContext';
 import { UserForm } from '../../features/CRUD Operations/Form User/FormUser';
@@ -38,9 +37,15 @@ export default function EditUserPage() {
     const urlInput = useRef<HTMLInputElement>(null);
     const ageInput = useRef<HTMLInputElement>(null);
 
-    const interceptorId = rax.attach();
-
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user-store');
+
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate]);
     const usersContext = useContext(UsersContext)!;
 
     const { userId } = useParams();
@@ -61,6 +66,7 @@ export default function EditUserPage() {
             axios({
                 method: 'put',
                 url: `http://localhost:4000/api/users/${userId}`,
+                //url: `http://13.49.23.168:80/api/users/${userId}`,
                 raxConfig: {
                     instance: axios,
                     retry: 100,

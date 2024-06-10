@@ -4,12 +4,22 @@ import { UserCard } from '../../features/Display Users/UserCard';
 import { User } from '../../models/user';
 import { Layout } from '../../shared/components/layout/Layout';
 
+import { useNavigate } from 'react-router-dom';
 import { UsersContext } from '../../contexts/UserContext';
 import { DeleteUserModal } from '../../modals/DeleteUserModal';
 import { Button } from '../../shared/components/button/Button';
 import './DisplayUsersPage.css';
 
 export default function DisplayUsersPage() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user-store');
+
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate]);
     document.title = 'Players dashboard';
 
     const [isAscending, setIsAscending] = useState<boolean>(true);

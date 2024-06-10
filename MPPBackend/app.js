@@ -1,7 +1,9 @@
 import cors from "cors";
 import express from "express";
+import accountRouter from "./routes/accounts.js";
 import fanRouter from "./routes/fans.js";
 import userRouter from "./routes/users.js";
+
 //require("dotenv").config();
 //const express = require("express");
 
@@ -21,6 +23,8 @@ app.use((req, res, next) => {
 app.use("/api/users", userRouter);
 
 app.use("/api/fans", fanRouter);
+
+app.use("/api/accounts", accountRouter);
 
 //module.exports = app;
 export default app;

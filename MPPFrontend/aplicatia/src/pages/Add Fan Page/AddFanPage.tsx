@@ -2,11 +2,10 @@ import { Fan } from '../../models/fan';
 import { Button } from '../../shared/components/button/Button';
 import { Layout } from '../../shared/components/layout/Layout';
 
-import { useContext, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
-import * as rax from 'retry-axios';
 import { FansContext } from '../../contexts/FanContext';
 import { FanForm } from '../../features/CRUD Operations/Form Fan/FormFan';
 import { useFanStore } from '../../store/useFanStore';
@@ -28,17 +27,23 @@ function handleOnClick(
 }
 
 export default function AddFanPage() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user-store');
+
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate]);
     document.title = 'Add fan';
 
     const userIdInput = useRef<HTMLInputElement>(null);
     const nameInput = useRef<HTMLInputElement>(null);
     const urlInput = useRef<HTMLInputElement>(null);
 
-    const interceptorId = rax.attach();
-
     const addFanStore = useFanStore((state) => state.addFan);
 
-    const navigate = useNavigate();
     const fansContext = useContext(FansContext)!;
     //axios
     const handleOnClickWrapper = () => {
@@ -51,6 +56,7 @@ export default function AddFanPage() {
             axios({
                 method: 'post',
                 url: 'http://localhost:4000/api/fans/addFan',
+                //url: 'http://13.49.23.168:80/api/fans/addFan',
                 data: inputFan,
                 raxConfig: {
                     instance: axios,

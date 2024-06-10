@@ -1,17 +1,27 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { FanCard } from '../../features/Display Fans/FanCard';
 import { Fan } from '../../models/fan';
 import { Layout } from '../../shared/components/layout/Layout';
 
+import { useNavigate } from 'react-router-dom';
 import { FansContext } from '../../contexts/FanContext';
 import { Button } from '../../shared/components/button/Button';
 import './DisplayUsersPage.css';
 
 export default function DisplayFansPage() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user-store');
+
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate]);
     document.title = 'Fans dashboard';
 
-    const [isAscending, setIsAscending] = useState<boolean>(true);
+    // const [isAscending, setIsAscending] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const pageSize = 5; // Number of users to display per page
 

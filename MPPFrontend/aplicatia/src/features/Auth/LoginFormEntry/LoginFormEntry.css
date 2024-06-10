@@ -1,0 +1,19 @@
+.login-form-entry {
+    display: flex;
+    flex-direction: column;
+
+    padding: 0.5rem;
+}
+
+.login-form-label {
+    padding: 0.2em;
+    font-size: 12pt;
+    font-weight: 500;
+}
+
+.login-form-input {
+    padding: 1rem;
+    border-radius: 4px;
+
+    background-color: #f4f4f4;
+}

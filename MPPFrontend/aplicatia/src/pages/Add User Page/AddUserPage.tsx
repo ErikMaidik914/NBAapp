@@ -2,7 +2,7 @@ import { User } from '../../models/user';
 import { Button } from '../../shared/components/button/Button';
 import { Layout } from '../../shared/components/layout/Layout';
 
-import { useContext, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
@@ -30,6 +30,15 @@ function handleOnClick(
 }
 
 export default function AddUserPage() {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user-store');
+
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate]);
     document.title = 'Add user';
 
     const nameInput = useRef<HTMLInputElement>(null);
@@ -41,7 +50,6 @@ export default function AddUserPage() {
 
     const addUserStore = useUserStore((state) => state.addUser);
 
-    const navigate = useNavigate();
     const usersContext = useContext(UsersContext)!;
     //axios
     const handleOnClickWrapper = () => {
@@ -54,6 +62,7 @@ export default function AddUserPage() {
             axios({
                 method: 'post',
                 url: 'http://localhost:4000/api/users/addUser',
+                //url: 'http://13.49.23.168:80/api/users/addUser',
                 data: inputUser,
                 raxConfig: {
                     instance: axios,

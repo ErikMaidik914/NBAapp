@@ -5,7 +5,6 @@ import { useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import axios from 'axios';
-import * as rax from 'retry-axios';
 
 import { FansContext } from '../../contexts/FanContext';
 import { FanForm } from '../../features/CRUD Operations/Form Fan/FormFan';
@@ -35,9 +34,15 @@ export default function EditFanPage() {
     const urlInput = useRef<HTMLInputElement>(null);
     const userIdInput = useRef<HTMLInputElement>(null);
 
-    const interceptorId = rax.attach();
-
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const user = localStorage.getItem('user-store');
+
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate]);
     const fansContext = useContext(FansContext)!;
 
     const { fanId } = useParams();
@@ -58,6 +63,7 @@ export default function EditFanPage() {
             axios({
                 method: 'put',
                 url: `http://localhost:4000/api/users/${fanId}`,
+                //url: `http://13.49.23.168:80/api/users/${fanId}`,
                 raxConfig: {
                     instance: axios,
                     retry: 100,
